@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Masuk'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Kata Sandi',
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
@@ -184,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                         });
                       },
                       tooltip:
-                          _showPassword ? 'Hide password' : 'Show password',
+                          _showPassword ? 'Sembunyikan Kata Sandi' : 'Tampilkan Kata Sandi',
                     ),
                   ),
                   obscureText: !_showPassword,
@@ -209,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                     Text(
-                      'Remember Me',
+                      'Ingat Saya',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
@@ -226,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
                   child:
                       _isLoading
                           ? const CircularProgressIndicator()
-                          : const Text('Login', style: TextStyle(fontSize: 16)),
+                          : const Text('Masuk', style: TextStyle(fontSize: 16)),
                 ),
                 const SizedBox(height: 20),
                 // Register Link
@@ -234,7 +234,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account? ",
+                      "Tidak punya akun? ",
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
@@ -248,7 +248,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       },
-                      child: const Text('Register'),
+                      child: const Text('Daftar'),
                     ),
                   ],
                 ),

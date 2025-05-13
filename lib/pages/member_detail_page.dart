@@ -183,18 +183,19 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
   // Separate navigation function to avoid context across async gaps
   Future<void> _navigateToEditPage(List<int> existingNomorInduks) async {
     // Perform the navigation
-    result = await Navigator.of(context).push(
+    final navigationResult = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder:
-            (context) => EditAnggotaPage(
-              member: _member,
-              existingNomorInduks: existingNomorInduks,
-            ),
+        builder: (context) => EditAnggotaPage(
+          member: _member,
+          existingNomorInduks: existingNomorInduks,
+        ),
       ),
     );
 
-    // Handle the result
-    if (result == true && mounted) {
+    // Handle the result - set result to true if navigationResult is true
+    // otherwise, keep it as false (default value)
+    if (navigationResult == true && mounted) {
+      result = true;
       // Refresh member data
       await _refreshMemberData();
     }

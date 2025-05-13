@@ -124,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Create an Account',
+                  'Daftar Akun',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 22,
@@ -171,7 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: const InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: 'Nama Lengkap',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
@@ -179,10 +179,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return 'Tolong masukkan nama lengkap';
                     }
                     if (value.length < 3) {
-                      return 'Name must be at least 3 characters';
+                      return 'Nama lengkap harus lebih dari 3 karakter';
                     }
                     return null;
                   },
@@ -205,10 +205,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Tolong masukkan email';
                     }
                     if (!_emailRegex.hasMatch(value)) {
-                      return 'Please enter a valid email address';
+                      return 'Tolong masukkan email yang valid';
                     }
                     return null;
                   },
@@ -222,7 +222,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'Kata Sandi',
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
@@ -238,16 +238,16 @@ class _RegisterPageState extends State<RegisterPage> {
                         });
                       },
                       tooltip:
-                          _showPassword ? 'Hide password' : 'Show password',
+                          _showPassword ? 'Sembunyikan Kata Sandi' : 'Tampilkan Kata Sandi',
                     ),
                   ),
                   obscureText: !_showPassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a password';
+                      return 'Tolong masukkan kata sandi';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Kata sandi harus lebih dari 6 karakter';
                     }
                     return null;
                   },
@@ -261,7 +261,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
+                    labelText: 'Konfirmasi Kata Sandi',
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
@@ -280,17 +280,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                       tooltip:
                           _showConfirmPassword
-                              ? 'Hide password'
-                              : 'Show password',
+                              ? 'Sembunyikan Kata Sandi'
+                              : 'Tampilkan Kata Sandi',
                     ),
                   ),
                   obscureText: !_showConfirmPassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return 'Tolong masukkan konfirmasi kata sandi';
                     }
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'Kata sandi tidak cocok';
                     }
                     return null;
                   },
@@ -327,7 +327,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      'Sudah punya akun? ',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
@@ -343,7 +343,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         );
                       },
-                      child: const Text('Login'),
+                      child: const Text('Masuk'),
                     ),
                   ],
                 ),

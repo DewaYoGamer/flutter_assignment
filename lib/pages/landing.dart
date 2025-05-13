@@ -19,13 +19,13 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
+  final TextEditingController _searchController = TextEditingController();
   final MemberService _memberService = MemberService();
   final AuthService _authService = AuthService();
   List<Member> _filteredMembers = [];
   bool _isLoading = false;
   String _errorMessage = '';
   String _searchQuery = '';
-  final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -189,7 +189,7 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('List Anggota'),
+        title: const Text('Daftar Anggota'),
         actions: [
           IconButton(
             icon: Icon(
