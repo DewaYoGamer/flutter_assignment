@@ -21,6 +21,7 @@ class MemberDetailPage extends StatefulWidget {
 class _MemberDetailPageState extends State<MemberDetailPage> {
   final MemberService _memberService = MemberService();
   bool _isLoading = false;
+  bool result = false;
   late Member _member;
 
   @override
@@ -82,13 +83,6 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
         _member = updatedMember;
         _isLoading = false;
       });
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data berhasil dimuat ulang'),
-          backgroundColor: Colors.green,
-        ),
-      );
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -189,7 +183,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
   // Separate navigation function to avoid context across async gaps
   Future<void> _navigateToEditPage(List<int> existingNomorInduks) async {
     // Perform the navigation
-    final result = await Navigator.of(context).push(
+    result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (context) => EditAnggotaPage(
@@ -210,6 +204,12 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context, result);
+          },
+        ),
         title: const Text('Detail Anggota'),
         centerTitle: true,
         actions: [
@@ -237,17 +237,22 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.blue,
-                          child: Text(
-                            _member.nama[0],
-                            style: const TextStyle(
-                              fontSize: 40,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                        child: _member.imageUrl != null
+                              ? CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage: NetworkImage(_member.imageUrl!),
+                                )
+                              : CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.blue,
+                                child: Text(
+                                  _member.nama[0],
+                                  style: const TextStyle(
+                                    fontSize: 40,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                       ),
                       const SizedBox(height: 24),
                       DetailItem(
@@ -261,14 +266,30 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                         value: _member.tglLahir,
                       ),
                       DetailItem(label: 'Telepon', value: _member.telepon),
-                      DetailItem(
-                        label: 'Status',
-                        value:
+                      Row(
+                        children: [
+                          Text(
+                            'Status Aktif:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 16.0),
+                          ),
+                          Text(
                             _member.statusAktif == 1 ? 'Aktif' : 'Tidak Aktif',
-                        valueColor:
-                            _member.statusAktif == 1
-                                ? Colors.green
-                                : Colors.red,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: _member.statusAktif == 1
+                                  ? Colors.green
+                                  : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 40),
                       Center(

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'register_page.dart';
 import '../services/auth_service.dart';
 import '../notifiers.dart';
 import 'landing.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final bool registrationSuccess;
+
+  const LoginPage({super.key, this.registrationSuccess = false});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -17,7 +20,43 @@ class _LoginPageState extends State<LoginPage> {
   final _authService = AuthService();
 
   bool _isLoading = false;
+  bool _rememberMe = false;
+  bool _showPassword = false;
   String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+
+    // Show registration success SnackBar after the widget has been built
+    if (widget.registrationSuccess) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Registration successful.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      });
+    }
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final isRemembered = await _authService.isRememberMeEnabled();
+    if (isRemembered) {
+      final credentials = await _authService.getSavedCredentials();
+
+      setState(() {
+        _emailController.text = credentials['email'] ?? '';
+        _passwordController.text = credentials['password'] ?? '';
+        _rememberMe = true;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -36,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
       final success = await _authService.login(
         _emailController.text.trim(),
         _passwordController.text,
+        rememberMe: _rememberMe,
       );
 
       if (!mounted) return;
@@ -74,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
             },
             tooltip: 'Ganti Tema',
           ),
-        ],          
+        ],
       ),
       body: Align(
         alignment: const Alignment(0, -0.25),
@@ -103,7 +143,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 TextFormField(
                   controller: _emailController,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(
@@ -122,15 +164,30 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-                  decoration: const InputDecoration(
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
                     labelText: 'Password',
-                    border: OutlineInputBorder(
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
-                    prefixIcon: Icon(Icons.lock),
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _showPassword ? Icons.visibility_off : Icons.visibility,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showPassword = !_showPassword;
+                        });
+                      },
+                      tooltip:
+                          _showPassword ? 'Hide password' : 'Show password',
+                    ),
                   ),
-                  obscureText: true,
+                  obscureText: !_showPassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
@@ -138,7 +195,29 @@ class _LoginPageState extends State<LoginPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 8),
+                // Remember Me checkbox
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _rememberMe,
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      onChanged: (value) {
+                        setState(() {
+                          _rememberMe = value ?? false;
+                        });
+                      },
+                    ),
+                    Text(
+                      'Remember Me',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
@@ -148,6 +227,30 @@ class _LoginPageState extends State<LoginPage> {
                       _isLoading
                           ? const CircularProgressIndicator()
                           : const Text('Login', style: TextStyle(fontSize: 16)),
+                ),
+                const SizedBox(height: 20),
+                // Register Link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account? ",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterPage(),
+                          ),
+                        );
+                      },
+                      child: const Text('Register'),
+                    ),
+                  ],
                 ),
               ],
             ),

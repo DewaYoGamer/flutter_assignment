@@ -23,51 +23,23 @@ class _LandingPageState extends State<LandingPage> {
   final AuthService _authService = AuthService();
   List<Member> _filteredMembers = [];
   bool _isLoading = false;
-  bool _isSilentlyRefreshing = false;
   String _errorMessage = '';
   String _searchQuery = '';
-  Timer? _refreshTimer;
   final TextEditingController _searchController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     _loadMembers();
-
-    // Set up a timer to refresh data every 60 seconds
-    _refreshTimer = Timer.periodic(const Duration(seconds: 60), (_) {
-      _silentRefresh();
-    });
   }
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
-  // Silently refresh data without showing loading state
-  Future<void> _silentRefresh() async {
-    if (_isSilentlyRefreshing) return;
-
-    _isSilentlyRefreshing = true;
-    try {
-      final members = await _memberService.getMembers();
-      if (mounted) {
-        setState(() {
-          _members = members;
-          _filterMembers();
-          _isSilentlyRefreshing = false;
-        });
-      }
-    } catch (e) {
-      _isSilentlyRefreshing = false;
-      // Don't show errors for background refreshes
-    }
-  }
-
   Future<void> _loadMembers() async {
+    await _authService.debugStoredData();
     setState(() {
       _isLoading = true;
       _errorMessage = '';
@@ -81,27 +53,62 @@ class _LandingPageState extends State<LandingPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print(
-        "error $e",
-      ); // Log the error for debugging without adding a period which creates a new statement
-      setState(() {
-        if (e is DioException && e.response?.statusCode == 406) {
-          // Token expired error (406) - user-friendly message without exposing error code
-          _errorMessage = 'Sesi anda telah berakhir. Silakan login kembali.';
-        } else {
-          // Generic error message that doesn't expose technical details
-          _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
-        }
-        _isLoading = false;
-      });
-    }
-  }
+      // Check if it's a token expiration error (status code 406)
+      if (e is DioException && e.response?.statusCode == 406) {
+        // Try auto-refreshing the token if Remember Me is enabled
+        final isRemembered = await _authService.isRememberMeEnabled();
+        if (isRemembered) {
+          // Attempt to refresh token using stored credentials
+          final refreshSuccess = await _authService.refreshToken();
+          if (refreshSuccess && mounted) {
+            // Token refreshed successfully, try loading members again
+            try {
+              final members = await _memberService.getMembers();
 
-  // Method to handle login redirection
-  void _navigateToLogin() {
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
+              if (!mounted) return;
+
+              setState(() {
+                _members = members;
+                _filterMembers();
+                _isLoading = false;
+              });
+              return;
+            } catch (_) {
+              if (mounted) {
+                setState(() {
+                  _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
+                  _isLoading = false;
+                });
+              }
+            }
+          }
+        }
+
+        if (mounted) {
+          await _authService.clearCredentials();
+          await _authService.logout();
+
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sesi telah berakhir. Silakan login kembali.'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ),
+          );
+          Navigator.of(
+            context,
+          ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Gagal memuat data. Silakan coba lagi.';
+            _isLoading = false;
+          });
+        }
+      }
+    }
   }
 
   void _filterMembers() {
@@ -185,11 +192,6 @@ class _LandingPageState extends State<LandingPage> {
         title: const Text('List Anggota'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadMembers,
-            tooltip: 'Refresh Data',
-          ),
-          IconButton(
             icon: Icon(
               Icons.dark_mode,
               color: Theme.of(context).colorScheme.onSurface,
@@ -272,36 +274,16 @@ class _LandingPageState extends State<LandingPage> {
     }
 
     if (_errorMessage.isNotEmpty) {
-      // Check if it's a token expiration error
-      final bool isTokenExpired = _errorMessage.contains(
-        'Sesi anda telah berakhir',
-      );
-
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(_errorMessage, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 16),
-            if (isTokenExpired) ...[
-              ElevatedButton(
-                onPressed: _navigateToLogin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text('Login'),
-              ),
-            ] else ...[
-              ElevatedButton(
-                onPressed: _loadMembers,
-                child: const Text('Retry'),
-              ),
-            ],
+            ElevatedButton(
+              onPressed: _loadMembers,
+              child: const Text('Retry'),
+            ),
           ],
         ),
       );
@@ -357,11 +339,15 @@ class MemberListItem extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: member.statusAktif == 1 ? Colors.blue : Colors.grey,
-          foregroundColor: Colors.white,
-          child: Text(member.nama[0]),
-        ),
+        leading: member.imageUrl != null
+            ? CircleAvatar(
+                backgroundImage: NetworkImage(member.imageUrl!),
+              )
+            : CircleAvatar(
+              backgroundColor: member.statusAktif == 1 ? Colors.blue : Colors.grey,
+              foregroundColor: Colors.white,
+              child: Text(member.nama[0]),
+            ),
         title: Text(
           member.nama,
           style: TextStyle(
@@ -387,7 +373,6 @@ class MemberListItem extends StatelessWidget {
             ),
           ],
         ),
-        isThreeLine: true,
         trailing: const Icon(Icons.chevron_right),
         onTap: () async {
           // Get all members for nomor induk validation

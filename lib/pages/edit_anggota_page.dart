@@ -86,11 +86,11 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
       if (data.isNotEmpty) {
         await _memberService.updateMember(widget.member.id, data);
         if (!mounted) return;
-
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data anggota berhasil diperbarui')),
+          const SnackBar(content: Text('Data anggota berhasil diperbarui'), backgroundColor: Colors.green,),
         );
-        Navigator.of(context).pop(true); // true indicates data was updated
+        // Return true to indicate data was updated
+        Navigator.of(context).pop(true);
       } else {
         // No changes made
         if (!mounted) return;
@@ -137,7 +137,7 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Anggota')),
+      appBar: AppBar(title: const Text('Edit Anggota'), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -162,10 +162,12 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
                 TextFormField(
                   controller: _nomorIndukController,
                   keyboardType: TextInputType.number,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Nomor Induk',
                     border: OutlineInputBorder(),
-                    helperText: 'Nomor Induk harus unik',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -189,6 +191,9 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _namaController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Nama',
                     border: OutlineInputBorder(),
@@ -202,6 +207,9 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _alamatController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Alamat',
                     border: OutlineInputBorder(),
@@ -215,6 +223,9 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _tglLahirController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   readOnly: true,
                   decoration: const InputDecoration(
                     labelText: 'Tanggal Lahir',
@@ -231,6 +242,9 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _teleponController,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
                     labelText: 'Telepon',
@@ -253,12 +267,7 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
                     horizontal: 12,
                     vertical: 8,
                   ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'Status Aktif',
@@ -266,6 +275,9 @@ class _EditAnggotaPageState extends State<EditAnggotaPage> {
                           fontSize: 16,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 16),
                       ),
                       Switch(
                         value: _statusAktif,

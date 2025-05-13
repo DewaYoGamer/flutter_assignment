@@ -8,16 +8,53 @@ class ApiService {
   factory ApiService() {
     return _instance;
   }
-
   ApiService._internal() {
     // Configure Dio instance
     _dio.options.connectTimeout = const Duration(seconds: 10);
     _dio.options.receiveTimeout = const Duration(seconds: 10);
     _dio.options.headers['Accept'] = 'application/json';
 
-    // Add logging interceptor
+    // Add interceptor for token refresh
     _dio.interceptors.add(
-      LogInterceptor(requestBody: true, responseBody: true),
+      InterceptorsWrapper(
+        onError: (error, handler) async {
+          // Check if error is due to token expiration (status code 406)
+          if (error.response?.statusCode == 406) {
+            // Try to refresh token
+            final authService = AuthService();
+            final refreshSuccess = await authService.refreshToken();
+
+            if (refreshSuccess) {
+              // If token refresh is successful, retry the original request
+              // Get the new token
+              final newToken = await authService.getToken();
+
+              // Update the Authorization header with the new token
+              error.requestOptions.headers['Authorization'] =
+                  'Bearer $newToken';
+
+              // Create a new request with the updated token
+              final opts = Options(
+                method: error.requestOptions.method,
+                headers: error.requestOptions.headers,
+              );
+
+              // Retry the request with the new token
+              final newRequest = await _dio.request(
+                error.requestOptions.path,
+                options: opts,
+                data: error.requestOptions.data,
+                queryParameters: error.requestOptions.queryParameters,
+              );
+
+              // Return the response of the retry request
+              return handler.resolve(newRequest);
+            }
+          }
+
+          return handler.next(error);
+        },
+      ),
     );
   }
 

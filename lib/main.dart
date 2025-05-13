@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
               surface: Colors.white,
               error: Colors.red,
               onPrimary: Colors.white,
-              onSecondary: Colors.grey.shade800,
-              onSurface: Colors.grey.shade800,
+              onSecondary: Colors.black,
+              onSurface: Colors.black,
               onError: Colors.white,
               brightness: Brightness.light,
             ),
@@ -68,7 +68,6 @@ class AuthCheckPage extends StatefulWidget {
 
 class _AuthCheckPageState extends State<AuthCheckPage> {
   final AuthService _authService = AuthService();
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -80,10 +79,6 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
     final isLoggedIn = await _authService.isLoggedIn();
 
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-    });
 
     if (isLoggedIn) {
       Navigator.of(
@@ -100,10 +95,7 @@ class _AuthCheckPageState extends State<AuthCheckPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child:
-            _isLoading
-                ? const CircularProgressIndicator()
-                : const Text('Checking authentication...'),
+        child: const CircularProgressIndicator()
       ),
     );
   }
