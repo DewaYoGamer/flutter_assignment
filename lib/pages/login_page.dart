@@ -27,7 +27,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _loadSavedCredentials();
 
     // Show registration success SnackBar after the widget has been built
     if (widget.registrationSuccess) {
@@ -41,19 +40,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
         }
-      });
-    }
-  }
-
-  Future<void> _loadSavedCredentials() async {
-    final isRemembered = await _authService.isRememberMeEnabled();
-    if (isRemembered) {
-      final credentials = await _authService.getSavedCredentials();
-
-      setState(() {
-        _emailController.text = credentials['email'] ?? '';
-        _passwordController.text = credentials['password'] ?? '';
-        _rememberMe = true;
       });
     }
   }

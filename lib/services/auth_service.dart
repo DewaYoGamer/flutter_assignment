@@ -174,19 +174,6 @@ class AuthService {
     return {'email': email, 'password': password};
   }
 
-  // Debug method to check stored credentials
-  Future<void> debugStoredData() async {
-    final rememberMe = await _secureStorage.read(key: _rememberMeKey);
-    final email = await _secureStorage.read(key: _emailKey);
-    final password = await _secureStorage.read(key: _passwordKey);
-    final token = await _secureStorage.read(key: _tokenKey);
-
-    print('debug Remember Me: $rememberMe');
-    print('debug Email: ${email != null ? '✓ (stored)' : '✗ (not stored)'}');
-    print('debug Password: ${password != null ? '✓ (stored)' : '✗ (not stored)'}');
-    print('debug Token: ${token != null ? '✓ (stored)' : '✗ (not stored)'}');
-  } // Auto refresh token method
-
     // Check if remember me is enabled
   Future<bool> refreshToken() async {
     final isRemembered = await isRememberMeEnabled();

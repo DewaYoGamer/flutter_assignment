@@ -185,10 +185,11 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
     // Perform the navigation
     final navigationResult = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => EditAnggotaPage(
-          member: _member,
-          existingNomorInduks: existingNomorInduks,
-        ),
+        builder:
+            (context) => EditAnggotaPage(
+              member: _member,
+              existingNomorInduks: existingNomorInduks,
+            ),
       ),
     );
 
@@ -226,95 +227,108 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
           ),
         ],
       ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : RefreshIndicator(
-                onRefresh: _refreshMemberData,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: _member.imageUrl != null
-                              ? CircleAvatar(
-                                  radius: 50,
-                                  backgroundImage: NetworkImage(_member.imageUrl!),
-                                )
-                              : CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.blue,
-                                child: Text(
-                                  _member.nama[0],
-                                  style: const TextStyle(
-                                    fontSize: 40,
-                                    color: Colors.white,
+      body: PopScope(
+        canPop: false,
+        onPopInvoked:(didPop) async {
+          if (didPop) {
+            return;
+          }
+          Navigator.pop(context, result);
+        },
+        child:
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                  onRefresh: _refreshMemberData,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child:
+                              _member.imageUrl != null
+                                  ? CircleAvatar(
+                                    radius: 50,
+                                    backgroundImage: NetworkImage(
+                                      _member.imageUrl!,
+                                    ),
+                                  )
+                                  : CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colors.blue,
+                                    child: Text(
+                                      _member.nama[0],
+                                      style: const TextStyle(
+                                        fontSize: 40,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                        ),
+                        const SizedBox(height: 24),
+                        DetailItem(
+                          label: 'Nomor Induk',
+                          value: _member.nomorInduk.toString(),
+                        ),
+                        DetailItem(label: 'Nama', value: _member.nama),
+                        DetailItem(label: 'Alamat', value: _member.alamat),
+                        DetailItem(
+                          label: 'Tanggal Lahir',
+                          value: _member.tglLahir,
+                        ),
+                        DetailItem(label: 'Telepon', value: _member.telepon),
+                        Row(
+                          children: [
+                            Text(
+                              'Status Aktif:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                      ),
-                      const SizedBox(height: 24),
-                      DetailItem(
-                        label: 'Nomor Induk',
-                        value: _member.nomorInduk.toString(),
-                      ),
-                      DetailItem(label: 'Nama', value: _member.nama),
-                      DetailItem(label: 'Alamat', value: _member.alamat),
-                      DetailItem(
-                        label: 'Tanggal Lahir',
-                        value: _member.tglLahir,
-                      ),
-                      DetailItem(label: 'Telepon', value: _member.telepon),
-                      Row(
-                        children: [
-                          Text(
-                            'Status Aktif:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.primary,
                             ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 16.0),
-                          ),
-                          Text(
-                            _member.statusAktif == 1 ? 'Aktif' : 'Tidak Aktif',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: _member.statusAktif == 1
-                                  ? Colors.green
-                                  : Colors.red,
-                              fontWeight: FontWeight.bold,
+                            const Padding(padding: EdgeInsets.only(left: 16.0)),
+                            Text(
+                              _member.statusAktif == 1
+                                  ? 'Aktif'
+                                  : 'Tidak Aktif',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color:
+                                    _member.statusAktif == 1
+                                        ? Colors.green
+                                        : Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 40),
-                      Center(
-                        child: ElevatedButton.icon(
-                          onPressed:
-                              _isLoading ? null : _showDeleteConfirmation,
-                          icon: const Icon(Icons.delete),
-                          label: const Text('Hapus Anggota'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.error,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 24,
+                          ],
+                        ),
+                        const SizedBox(height: 40),
+                        Center(
+                          child: ElevatedButton.icon(
+                            onPressed:
+                                _isLoading ? null : _showDeleteConfirmation,
+                            icon: const Icon(Icons.delete),
+                            label: const Text('Hapus Anggota'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.error,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 24,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+      ),
     );
   }
 }

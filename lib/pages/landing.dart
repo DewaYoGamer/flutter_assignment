@@ -39,7 +39,6 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   Future<void> _loadMembers() async {
-    await _authService.debugStoredData();
     setState(() {
       _isLoading = true;
       _errorMessage = '';
@@ -140,21 +139,21 @@ class _LandingPageState extends State<LandingPage> {
       builder:
           (context) => AlertDialog(
             title: Text(
-              'Confirm Logout',
+              'Konfirmasi Keluar',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),
             content: Text(
-              'Are you sure you want to logout?',
+              'Apakah Anda yakin ingin keluar?',
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 child: Text(
-                  'Cancel',
+                  'Batal',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -165,7 +164,7 @@ class _LandingPageState extends State<LandingPage> {
                 style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error,
                 ),
-                child: const Text('Logout'),
+                child: const Text('Keluar'),
               ),
             ],
           ),
